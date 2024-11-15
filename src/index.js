@@ -21,7 +21,7 @@ fastify.register(expenseRoute, {prefix: "api/v1/expenses"})
 // Run Server 
 const start = async () => {
     try {
-        await fastify.listen({ port: port })
+        await fastify.listen({ port: port, host: '0.0.0.0'  })
     } catch (error) {
         fastify.log.error(error)
         process.exit(1)
