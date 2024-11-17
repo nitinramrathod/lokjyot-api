@@ -20,12 +20,13 @@ const getExpenseById = async (request, reply) => {
 }
 const createExpense = async (request, reply) => {
     try {
-        const data = new Expense(request.body);
-        data.save();
+        
+        const data = await Expense.create(request.body); 
+
         reply.status(201).send({
-            data,
-            message: "Data Created successfully."
-        })
+            data: data.toObject(),
+            message: "Data created successfully."
+        });
     } catch (error) {
         reply.status(500).send(error)
     }
