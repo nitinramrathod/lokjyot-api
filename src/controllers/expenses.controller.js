@@ -1,23 +1,69 @@
 const Expense = require('../models/expense.model');
+const mongoose = require('mongoose');
 
 const getAllExpenses = async (request, reply) => {
     try {
-        const expense = await Expense.find();
-        reply.status(200).send(expense);
+        // Fetch all expenses from the database
+        const expenses = await Expense.find();
+
+        // If no expenses found, return an empty array with a message
+        if (expenses.length === 0) {
+            return reply.status(200).send({
+                message: 'No expenses found',
+                data: []
+            });
+        }
+
+        // If expenses are found, return them wrapped in a data field
+        reply.status(200).send({
+            message: 'Expenses fetched successfully',
+            data: expenses
+        });
 
     } catch (error) {
-        reply.status(500).send(error)
+        // Log the error for debugging
+        console.error(error);
+
+        // Send a standardized error response
+        reply.status(500).send({
+            message: 'An error occurred while fetching the expenses.',
+            error: error.message
+        });
     }
-}
+};
 const getExpenseById = async (request, reply) => {
     try {
+        // Validate if the provided ID is a valid ObjectId
+        if (!mongoose.Types.ObjectId.isValid(request.params.id)) {
+            return reply.status(400).send({
+                message: 'Invalid Expense ID format'
+            });
+        }
+
+        // Find the expense by ID
         const expense = await Expense.findById(request.params.id);
-        reply.status(200).send(expense);
+
+        // If no expense is found, return 404
+        if (!expense) {
+            return reply.status(404).send({
+                message: 'Expense not found'
+            });
+        }
+
+        // If found, return the expense data
+        reply.status(200).send({
+            data: expense
+        });
 
     } catch (error) {
-        reply.status(500).send(error)
+        // General error handling
+        console.error(error);
+        reply.status(500).send({
+            message: 'An error occurred while fetching the expense.',
+            error: error.message
+        });
     }
-}
+};
 const createExpense = async (request, reply) => {
     try {
 
@@ -128,13 +174,39 @@ const updateExpense = async (request, reply) => {
 };
 const deleteExpense = async (request, reply) => {
     try {
-        await Expense.findByIdAndDelete(request.params.id)
-        reply.status(200).send({ message: "Record deleted successfully." });
+        // Check if the provided ID is a valid ObjectId
+        if (!mongoose.Types.ObjectId.isValid(request.params.id)) {
+            return reply.status(400).send({
+                message: 'Invalid Expense ID format'
+            });
+        }
+
+        // Attempt to find and delete the expense by ID
+        const expense = await Expense.findByIdAndDelete(request.params.id);
+
+        // If no expense was found to delete, return a 404 error
+        if (!expense) {
+            return reply.status(404).send({
+                message: 'Expense not found'
+            });
+        }
+
+        // Successfully deleted, return a success message
+        reply.status(200).send({
+            message: 'Record deleted successfully.'
+        });
 
     } catch (error) {
-        reply.status(500).send(error)
+        // Log the error for debugging purposes
+        console.error(error);
+
+        // Return a standardized error response
+        reply.status(500).send({
+            message: 'An error occurred while deleting the expense.',
+            error: error.message
+        });
     }
-}
+};
 
 module.exports = {
     getAllExpenses,
