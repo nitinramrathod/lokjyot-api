@@ -20,7 +20,7 @@ const getExpenseById = async (request, reply) => {
 }
 const createExpense = async (request, reply) => {
     try {
-        
+
         const data = await Expense.create(request.body); 
 
         reply.status(201).send({
@@ -28,7 +28,37 @@ const createExpense = async (request, reply) => {
             message: "Data created successfully."
         });
     } catch (error) {
-        reply.status(500).send(error)
+         // Handle validation errors specifically
+        if (error.name === 'ValidationError') {
+            // Initialize an empty object to store field-specific error messages
+            const validationErrors = {};
+
+            // Loop through each error in the `error.errors` object
+            Object.values(error.errors).forEach(err => {
+                const field = err.path;  // The field name (e.g., 'name', 'mobile')
+                const message = err.message;  // The validation error message
+
+                // If this field already has an error array, push the message, else create a new array
+                if (!validationErrors[field]) {
+                    validationErrors[field] = [];
+                }
+                validationErrors[field].push(message);
+            });
+
+            // Return the formatted validation error response
+            return reply.status(400).send({
+                message: 'Validation failed',
+                errors: validationErrors
+            });
+        }
+
+        // Handle other types of errors
+        console.error(error);
+        return reply.status(500).send({
+            message: "Failed to create expense.",
+            error: error.message
+        });
+    
     }
 }
 const updateExpense = async (request, reply) => {
