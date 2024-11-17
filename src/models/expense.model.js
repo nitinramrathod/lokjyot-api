@@ -30,12 +30,12 @@ const ExpenseSchema = new mongoose.Schema({
     end_date: {
         type: Date,
         required: [true, 'End date is required'],
-        validate: {
-            validator: function(value) {
-                return value > this.start_date;  // Ensure end_date is after start_date
-            },
-            message: 'End date must be after start date',
-        },
+        // validate: {
+        //     validator: function(value) {
+        //         return value > this.start_date;  // Ensure end_date is after start_date
+        //     },
+        //     message: 'End date must be after start date',
+        // },
     },
     description: {
         type: String,
