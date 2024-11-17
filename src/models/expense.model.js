@@ -20,8 +20,7 @@ const ExpenseSchema = new mongoose.Schema({
     },
     duration: {
         type: String,
-        required: [true, 'Duration is required'],
-        enum: ['1 Year', '6 Months', '3 Months'],  // Example of enum validation
+        required: [true, 'Duration is required'], // Example of enum validation
     },
     start_date: {
         type: Date,
