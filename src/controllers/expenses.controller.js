@@ -63,16 +63,69 @@ const createExpense = async (request, reply) => {
 }
 const updateExpense = async (request, reply) => {
     try {
-         await Expense.findByIdAndUpdate(request.params.id, request.body);
+        const { id } = request.params;
+        const updateData = request.body;
+
+        // First, check if the expense with the given ID exists
+        const expense = await Expense.findById(id);
+
+        if (!expense) {
+            return reply.status(404).send({
+                message: 'Expense not found.'
+            });
+        }
+
+        // Now perform the update with validation (runValidators ensures validation happens)
+        const updatedExpense = await Expense.findByIdAndUpdate(id, updateData, {
+            new: true,           // Returns the updated document
+            runValidators: true, // Ensures validation is run on update
+        });
+
+        // If validation fails, Mongoose will throw an error, so catch that
+        if (!updatedExpense) {
+            return reply.status(400).send({
+                message: 'Failed to update expense.',
+            });
+        }
+
+        // Return the updated data
         reply.status(200).send({
-            data: request.body,
-            message: "Data updated successfully."
+            data: updatedExpense,  // Send back the updated document
+            message: 'Data updated successfully.'
         });
 
     } catch (error) {
-        reply.status(500).send(error)
+        // Handle validation error and send a formatted response
+        if (error.name === 'ValidationError') {
+            // Collect validation errors in an object where the field name is the key
+            const validationErrors = {};
+
+            // Loop through all the validation errors and format them
+            Object.values(error.errors).forEach(err => {
+                const field = err.path;  // The field name
+                const message = err.message;  // The error message
+
+                // If this field already has an error array, push the message, else create a new array
+                if (!validationErrors[field]) {
+                    validationErrors[field] = [];
+                }
+                validationErrors[field].push(message);
+            });
+
+            return reply.status(400).send({
+                message: 'Validation failed',
+                errors: validationErrors
+            });
+        }
+
+        // Handle other types of errors (non-validation errors)
+        console.error(error);
+        return reply.status(500).send({
+            message: 'An error occurred while updating the expense.',
+            error: error.message
+        });
     }
-}
+};
 const deleteExpense = async (request, reply) => {
     try {
         await Expense.findByIdAndDelete(request.params.id)
