@@ -13,6 +13,7 @@ const expenseSchema = Joi.object({
             'string.min': 'Name should be at least 3 characters long',
             'string.max': 'Name should be less than or equal to 100 characters long',
             'string.required': 'Name is required and must 173',
+            'string.empty': 'Name cannot be empty 173'
         }),
 
     mobile: Joi.string()
