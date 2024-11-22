@@ -5,7 +5,7 @@ const expenseSchema = Joi.object({
     name: Joi.string()
         .min(3)
         .max(100)
-        .empty('')  
+        .empty('')  // Empty string is treated as undefined
         .required()
         .messages({
             'string.base': 'Name should be a string',
@@ -34,6 +34,7 @@ const expenseSchema = Joi.object({
 
     duration: Joi.string()
         .valid('short-term', 'long-term')  // Example of enum validation, replace with your actual valid values
+        .empty('')  // Treat empty string as undefined
         .required()
         .messages({
             'string.base': 'Duration should be a string',
@@ -59,18 +60,18 @@ const expenseSchema = Joi.object({
 
     description: Joi.string()
         .max(500)
-        .optional()  // Description is optional but has a max length
+        .empty('')  // Empty string is treated as undefined
+        .optional()  // Optional field
         .messages({
             'string.base': 'Description should be a string',
             'string.max': 'Description should not exceed 500 characters',
         }),
 });
 
-
 const validateExpense = async (req, res, next) => {
     try {
         // Validate the request body using Joi
-        await expenseSchema.validateAsync(req.body,  { abortEarly: false });
+        await expenseSchema.validateAsync(req.body, { abortEarly: false });
 
         // If validation passes, proceed to the next middleware
         next();
@@ -82,7 +83,7 @@ const validateExpense = async (req, res, next) => {
             const field = err.path[0];  // Get the field name (e.g., 'name', 'mobile')
             let message = err.message; // Get the error message
 
-            message = message.replace(/\\/g, '').replace(/\"/g, '');
+            message = message.replace(/\\/g, '').replace(/\"/g, ''); // Clean up any unwanted characters
 
             // Assign the message to the corresponding field in validationErrors
             validationErrors[field] = message;
@@ -95,7 +96,6 @@ const validateExpense = async (req, res, next) => {
         });
     }
 };
-
 
 module.exports = {
     validateExpense,
