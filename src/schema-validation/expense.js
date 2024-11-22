@@ -5,7 +5,6 @@ const expenseSchema = Joi.object({
     name: Joi.string()
         .min(3)
         .max(100)
-        .trim()
         .required()
         .messages({
             'string.base': 'Name should be a string',
