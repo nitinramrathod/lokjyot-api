@@ -3,10 +3,10 @@ const Joi = require('joi');
 // Joi schema for validating Expense data
 const expenseSchema = Joi.object({
     name: Joi.string()
+        .empty('')
         .min(3)
         .max(100)
-        .empty('')
-        .trim()  // Empty string is treated as undefined
+        .trim() 
         .required()
         .messages({
             'string.base': 'Name should be a string',
