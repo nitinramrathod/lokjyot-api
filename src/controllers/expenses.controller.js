@@ -69,7 +69,7 @@ const getExpenseById = async (request, reply) => {
 const createExpense = async (req, res) => {
     try {
         // Validate request data first
-        await validateExpense(req, res, { abortEarly: false });
+        await validateExpense(req, res);
 
         // Create the expense in the database
         const data = await Expense.create(req.body);

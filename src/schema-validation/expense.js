@@ -68,7 +68,7 @@ const expenseSchema = Joi.object({
 const validateExpense = async (req, res, next) => {
     try {
         // Validate the request body using Joi
-        await expenseSchema.validateAsync(req.body);
+        await expenseSchema.validateAsync(req.body,  { abortEarly: false });
 
         // If validation passes, proceed to the next middleware
         next();
