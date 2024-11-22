@@ -7,7 +7,6 @@ const expenseSchema = Joi.object({
         .max(100)
         .trim()
         .required()
-        .empty('')
         .messages({
             'string.base': 'Name should be a string',
             'string.min': 'Name should be at least 3 characters long',
