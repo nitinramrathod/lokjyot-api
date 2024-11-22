@@ -73,10 +73,21 @@ const validateExpense = async (req, res, next) => {
         // If validation passes, proceed to the next middleware
         next();
     } catch (error) {
-        // If validation fails, send an error response with validation messages
+        const validationErrors = {};
+
+        // Loop through the error details
+        error.details.forEach(err => {
+            const field = err.path[0];  // Get the field name (e.g., 'name', 'mobile')
+            const message = err.message; // Get the error message
+
+            // Assign the message to the corresponding field in validationErrors
+            validationErrors[field] = message;
+        });
+
+        // Send the formatted error response
         return res.status(400).send({
             message: 'Validation failed',
-            errors: error.details
+            errors: validationErrors
         });
     }
 };
