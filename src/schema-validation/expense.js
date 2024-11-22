@@ -5,7 +5,8 @@ const expenseSchema = Joi.object({
     name: Joi.string()
         .min(3)
         .max(100)
-        .empty('')  // Empty string is treated as undefined
+        .empty('')
+        .trim()  // Empty string is treated as undefined
         .required()
         .messages({
             'string.base': 'Name should be a string',
