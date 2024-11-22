@@ -80,9 +80,9 @@ const validateExpense = async (req, res, next) => {
         const validationErrors = {};
 
         // Loop through the error details
-        error.details.forEach(err => {
-            const field = err.path[0];  // Get the field name (e.g., 'name', 'mobile')
-            let message = err.message; // Get the error message
+        error?.details?.forEach(err => {
+            const field = err?.path[0];  // Get the field name (e.g., 'name', 'mobile')
+            let message = err?.message; // Get the error message
 
             message = message.replace(/\\/g, '').replace(/\"/g, ''); // Clean up any unwanted characters
 
