@@ -4,7 +4,8 @@ const Joi = require('joi');
 const expenseSchema = Joi.object({
     name: Joi.string()
         .min(3)
-        .max(100)  // Optional, but you can define max length for the name
+        .max(100)
+        .empty('')  
         .required()
         .messages({
             'string.base': 'Name should be a string',
