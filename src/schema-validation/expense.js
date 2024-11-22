@@ -3,11 +3,11 @@ const Joi = require('joi');
 // Joi schema for validating Expense data
 const expenseSchema = Joi.object({
     name: Joi.string()
-        .empty('')
         .min(3)
         .max(100)
-        .trim() 
+        .trim()
         .required()
+        .empty('')
         .messages({
             'string.base': 'Name should be a string',
             'string.min': 'Name should be at least 3 characters long',
