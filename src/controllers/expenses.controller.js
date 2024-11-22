@@ -1,5 +1,6 @@
 const Expense = require('../models/expense.model');
 const mongoose = require('mongoose');
+const { validateExpense } = require('../schema-validation/expense');
 
 const getAllExpenses = async (request, reply) => {
     try {
