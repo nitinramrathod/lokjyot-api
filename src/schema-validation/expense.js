@@ -10,7 +10,7 @@ const expenseSchema = Joi.object({
         .messages({
             'string.base': 'Name should be a string',
             'string.min': 'Name should be at least 3 characters long',
-            'string.required': 'Name is required',
+            'string.required': 'Name is required and must 173',
         }),
 
     mobile: Joi.string()
@@ -79,7 +79,9 @@ const validateExpense = async (req, res, next) => {
         // Loop through the error details
         error.details.forEach(err => {
             const field = err.path[0];  // Get the field name (e.g., 'name', 'mobile')
-            const message = err.message; // Get the error message
+            let message = err.message; // Get the error message
+
+            message = message.replace(/\\/g, '').replace(/\"/g, '');
 
             // Assign the message to the corresponding field in validationErrors
             validationErrors[field] = message;
