@@ -1,24 +1,23 @@
-const Expense = require('../models/expense.model');
+const News = require('../models/news.model');
 const mongoose = require('mongoose');
-const { validateExpense } = require('../schema-validation/expense');
 
-const getAllExpenses = async (request, reply) => {
+const getAll = async (request, reply) => {
     try {
         // Fetch all expenses from the database
-        const expenses = await Expense.find();
+        const news = await News.find();
 
         // If no expenses found, return an empty array with a message
-        if (expenses.length === 0) {
-            return reply.status(200).send({
-                message: 'No expenses found',
+        if (news.length === 0) {
+            return reply.status(404).send({
+                message: 'No news found',
                 data: []
             });
         }
 
         // If expenses are found, return them wrapped in a data field
         reply.status(200).send({
-            message: 'Expenses fetched successfully',
-            data: expenses
+            message: 'News fetched successfully',
+            data: news
         });
 
     } catch (error) {
@@ -27,27 +26,27 @@ const getAllExpenses = async (request, reply) => {
 
         // Send a standardized error response
         reply.status(500).send({
-            message: 'An error occurred while fetching the expenses.',
+            message: 'An error occurred while fetching the news.',
             error: error.message
         });
     }
 };
-const getExpenseById = async (request, reply) => {
+const getSingle = async (request, reply) => {
     try {
         // Validate if the provided ID is a valid ObjectId
         if (!mongoose.Types.ObjectId.isValid(request.params.id)) {
             return reply.status(400).send({
-                message: 'Invalid Expense ID format'
+                message: 'Invalid News ID format'
             });
         }
 
         // Find the expense by ID
-        const expense = await Expense.findById(request.params.id);
+        const expense = await News.findById(request.params.id);
 
         // If no expense is found, return 404
         if (!expense) {
             return reply.status(404).send({
-                message: 'Expense not found'
+                message: 'News not found'
             });
         }
 
@@ -66,44 +65,63 @@ const getExpenseById = async (request, reply) => {
     }
 };
 
-const createExpense = async (req, res) => {
+const create = async (req, res) => {
     try {
-        // Validate request data first
-        await validateExpense(req, res);
 
-        // Create the expense in the database
-        const data = await Expense.create(req.body);
+        // Create the expense in the database  
+        console.log('req====>', req)      
+        const {
+            name,
+            author_name,
+            short_description,
+            long_description,
+            publish_date,
+            image_url,
+            category,
+            tags,
+        } = req.body;
+
+        const news = await News.create({
+            name,
+            author_name,
+            short_description,
+            long_description,
+            publish_date,
+            image_url,
+            category,
+            tags,
+        });
 
         // Send success response
         res.status(201).send({
-            data: data,
-            message: "Expense created successfully."
+            data: news,
+            message: "News created successfully."
         });
     } catch (error) {
         console.error(error);
         res.status(500).send({
-            message: "Failed to create expense.",
-            error: error.message
+            message: "Failed to create news.",
+            error: error
         });
     }
 };
 
-const updateExpense = async (request, reply) => {
+const update = async (request, reply) => {
     try {
         const { id } = request.params;
         const updateData = request.body;
 
         // First, check if the expense with the given ID exists
-        const expense = await Expense.findById(id);
+        const expense = await News.findById(id);
 
         if (!expense) {
             return reply.status(404).send({
-                message: 'Expense not found.'
+                message: 'News not found.'
             });
         }
 
         // Now perform the update with validation (runValidators ensures validation happens)
-        const updatedExpense = await Expense.findByIdAndUpdate(id, updateData, {
+        const updatedExpense = await News.findByIdAndUpdate(id, updateData, {
             new: true,           // Returns the updated document
             runValidators: true, // Ensures validation is run on update
         });
@@ -153,22 +171,22 @@ const updateExpense = async (request, reply) => {
         });
     }
 };
-const deleteExpense = async (request, reply) => {
+const destroy = async (request, reply) => {
     try {
         // Check if the provided ID is a valid ObjectId
         if (!mongoose.Types.ObjectId.isValid(request.params.id)) {
             return reply.status(400).send({
-                message: 'Invalid Expense ID format'
+                message: 'Invalid News ID format'
             });
         }
 
         // Attempt to find and delete the expense by ID
-        const expense = await Expense.findByIdAndDelete(request.params.id);
+        const expense = await News.findByIdAndDelete(request.params.id);
 
         // If no expense was found to delete, return a 404 error
         if (!expense) {
             return reply.status(404).send({
-                message: 'Expense not found'
+                message: 'News not found'
             });
         }
 
@@ -190,9 +208,9 @@ const deleteExpense = async (request, reply) => {
 };
 
 module.exports = {
-    getAllExpenses,
-    getExpenseById,
-    createExpense,
-    updateExpense,
-    deleteExpense
+    getAll,
+    getSingle,
+    create,
+    update,
+    destroy
 }

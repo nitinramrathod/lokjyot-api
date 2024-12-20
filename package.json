@@ -1,13 +1,13 @@
 {
-  "name": "expence",
+  "name": "jalna-lokjyot",
   "version": "1.0.0",
-  "description": "Expence Management System.",
+  "description": "The news website jalna lokjyot.",
   "main": "index.js",
   "scripts": {
     "dev": "nodemon src/index.js",
     "start": "node src/index.js"
   },
-  "author": "Nitin Rathod",
+  "author": "Nitin Ram Rathod",
   "license": "ISC",
   "dependencies": {
     "@fastify/cors": "^9.0.1",
