@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const getAll = async (request, reply) => {
     try {
         // Fetch all expenses from the database
-        const news = await News.find();
+        const news = await News.find().sort({ createdAt: -1 });
 
         // If no expenses found, return an empty array with a message
         if (news.length === 0) {
