@@ -6,21 +6,11 @@ const NewsSchema = new mongoose.Schema({
         required: [true, 'Name is required'],
         trim: true,
     },
-    author_name: {
-        type: String,
-        required: [true, 'author is required'],
-        trim: true,
-    },
     short_description: {
         type: String,
         trim: true,
-    },
-    long_description: {
-        type: String,
-        required: [true, 'Long description is required'],
-        trim: true,
-    },
-    publish_date: {
+    },    
+    location: {
         type: String,
         trim: true,
     },
@@ -35,7 +25,21 @@ const NewsSchema = new mongoose.Schema({
     tags: {
         type: String,
         trim: true,
+    },  
+    long_description: {
+        type: String,
+        required: [true, 'Long description is required'],
+        trim: true,
     },
+    publish_date: {
+        type: Date,
+        trim: true,
+    },
+    author_name: {
+        type: String,
+        required: [true, 'author is required'],
+        trim: true,
+    },    
  
 }, { timestamps: true })
 

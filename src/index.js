@@ -1,8 +1,7 @@
 const Fastify = require('fastify');
-const newsRoute = require('./routes/news.route')
-const fastify = Fastify({ logger: true });
+const fastify = Fastify({ logger: false });
 const cors = require('@fastify/cors')
-
+const jwt = require('@fastify/jwt');
 // Register CORS plugin
 fastify.register(cors, {
     origin: '*',
@@ -15,6 +14,22 @@ require('./dbConnection');
 
 const port = process.env.PORT || 3000;
 
+const newsRoute = require('./routes/news.route');
+const userRoute = require('./routes/user.route');
+const loginRoute = require('./routes/login.route');
+
+fastify.register(jwt, {
+    secret: process.env.JWT_SECRET_KEY || 'hello', 
+})
+fastify.decorate('authenticate', async (request, reply) => {
+    try {
+        await request.jwtVerify();
+        console.log('Decoded Token:', request.user);
+    } catch (err) {
+        reply.status(401).send({ message: 'Unauthorized access', error: err.message });
+    }
+});
+
 fastify.get('/', (req, reply)=>{
     return reply.status(200).send({
         message: 'Welcome to home',
@@ -23,6 +38,8 @@ fastify.get('/', (req, reply)=>{
 
 // Declare Routes 
 fastify.register(newsRoute, {prefix: "api/v1/news"})
+fastify.register(userRoute, {prefix: "api/v1/user"})
+fastify.register(loginRoute, {prefix: "api/v1/login"})
 
 // Run Server 
 const start = async () => {

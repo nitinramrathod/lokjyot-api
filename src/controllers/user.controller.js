@@ -1,10 +1,10 @@
-const News = require('../models/news.model');
+const User = require('../models/user.model');
 const mongoose = require('mongoose');
 
 const getAll = async (request, reply) => {
     try {
         // Fetch all expenses from the database
-        const news = await News.find().sort({ createdAt: -1 });
+        const news = await User.find().sort({ createdAt: -1 });
 
         // If no expenses found, return an empty array with a message
         if (news.length === 0) {
@@ -16,7 +16,7 @@ const getAll = async (request, reply) => {
 
         // If expenses are found, return them wrapped in a data field
         reply.status(200).send({
-            message: 'News fetched successfully',
+            message: 'User fetched successfully',
             data: news
         });
 
@@ -33,24 +33,20 @@ const getAll = async (request, reply) => {
 };
 const getSingle = async (request, reply) => {
     try {
-        // Validate if the provided ID is a valid ObjectId
         if (!mongoose.Types.ObjectId.isValid(request.params.id)) {
             return reply.status(400).send({
-                message: 'Invalid News ID format'
+                message: 'Invalid User ID format'
             });
         }
 
-        // Find the expense by ID
-        const expense = await News.findById(request.params.id);
+        const expense = await User.findById(request.params.id);
 
-        // If no expense is found, return 404
         if (!expense) {
             return reply.status(404).send({
-                message: 'News not found'
+                message: 'User not found'
             });
         }
 
-        // If found, return the expense data
         reply.status(200).send({
             data: expense
         });
@@ -68,39 +64,27 @@ const getSingle = async (request, reply) => {
 const create = async (req, res) => {
     try {
 
-        // Create the expense in the database  
-        console.log('req====>', req)      
         const {
             name,
-            author_name,
-            short_description,
-            long_description,
-            publish_date,
-            image_url,
-            category,
-            tags,
+            email,
+            password
         } = req.body;
 
-        const news = await News.create({
+        const news = await User.create({
             name,
-            author_name,
-            short_description,
-            long_description,
-            publish_date,
-            image_url,
-            category,
-            tags,
+            email,
+            password
         });
 
         // Send success response
         res.status(201).send({
             data: news,
-            message: "News created successfully."
+            message: "User created successfully."
         });
     } catch (error) {
         console.error(error);
         res.status(500).send({
-            message: "Failed to create news.",
+            message: "Failed to create user.",
             error: error
         });
     }
@@ -111,15 +95,15 @@ const update = async (request, reply) => {
         const { id } = request.params;
         const updateData = request.body;
         
-        const expense = await News.findById(id);
+        const expense = await User.findById(id);
 
         if (!expense) {
             return reply.status(404).send({
-                message: 'News not found.'
+                message: 'User not found.'
             });
         }
        
-        const updatedExpense = await News.findByIdAndUpdate(id, updateData, {
+        const updatedExpense = await User.findByIdAndUpdate(id, updateData, {
             new: true,           // Returns the updated document
             runValidators: true, // Ensures validation is run on update
         });
@@ -173,17 +157,17 @@ const destroy = async (request, reply) => {
         // Check if the provided ID is a valid ObjectId
         if (!mongoose.Types.ObjectId.isValid(request.params.id)) {
             return reply.status(400).send({
-                message: 'Invalid News ID format'
+                message: 'Invalid User ID format'
             });
         }
 
         // Attempt to find and delete the expense by ID
-        const expense = await News.findByIdAndDelete(request.params.id);
+        const expense = await User.findByIdAndDelete(request.params.id);
 
         // If no expense was found to delete, return a 404 error
         if (!expense) {
             return reply.status(404).send({
-                message: 'News not found'
+                message: 'User not found'
             });
         }
 
