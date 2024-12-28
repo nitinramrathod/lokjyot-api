@@ -9,7 +9,7 @@ const NewsSchema = new mongoose.Schema({
     short_description: {
         type: String,
         trim: true,
-    },    
+    },
     location: {
         type: String,
         trim: true,
@@ -18,14 +18,22 @@ const NewsSchema = new mongoose.Schema({
         type: String,
         trim: true,
     },
-    category: {
+    status:{
         type: String,
+        required: [true, 'Status is required'],
         trim: true,
+        default: "pending",
+        enum: ["active", "inactive", "pending", "rejected"]
     },
-    tags: {
-        type: String,
-        trim: true,
-    },  
+    category: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Category',
+        required: [true, 'Category is required'],
+    },
+    tags: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Tag', 
+    }],
     long_description: {
         type: String,
         required: [true, 'Long description is required'],
@@ -37,12 +45,11 @@ const NewsSchema = new mongoose.Schema({
     },
     author_name: {
         type: String,
-        required: [true, 'author is required'],
+        required: [true, 'Author is required'],
         trim: true,
-    },    
- 
-}, { timestamps: true })
+    },
+}, { timestamps: true });
 
-const News = mongoose.model('news', NewsSchema);
+const News = mongoose.model('News', NewsSchema);
 
 module.exports = News;

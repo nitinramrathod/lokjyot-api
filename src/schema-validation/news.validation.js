@@ -1,5 +1,14 @@
 const Joi = require('joi');
-const { handleValidationError } = require('../helper/validationErrorMessage');
+const { handleValidationError } = require('../utils/helper/validationErrorMessage');
+const mongoose = require('mongoose');
+
+// Helper function to validate ObjectId
+const objectIdValidator = (value, helpers) => {
+    if (!mongoose.Types.ObjectId.isValid(value)) {
+        return helpers.error('any.invalid', { message: 'Invalid ObjectId format' });
+    }
+    return value;
+};
 
 // Joi schema for validating News data
 const newsValidationSchema = Joi.object({
@@ -25,7 +34,6 @@ const newsValidationSchema = Joi.object({
             'string.empty': 'Author name cannot be empty.',
             'any.required': 'Author name is required.',
         }),
-
     publish_date: Joi.date()
         .iso()
         .required()
@@ -34,7 +42,6 @@ const newsValidationSchema = Joi.object({
             'date.format': 'Publish date must be in ISO 8601 format.',
             'any.required': 'Publish date is required.',
         }),
-
     image_url: Joi.string()
         .uri()
         .optional()
@@ -42,21 +49,23 @@ const newsValidationSchema = Joi.object({
             'string.base': 'Image URL must be a valid string.',
             'string.uri': 'Image URL must be a valid URI.',
         }),
-
-    // tags: Joi.array()
-    //     .items(Joi.string().trim())
-    //     .optional()
-    //     .messages({
-    //         'array.base': 'Tags must be an array of strings.',
-    //         'string.base': 'Each tag must be a string.',
-    //     }),
-
-    // category: Joi.string()
-    //     .optional()
-    //     .messages({
-    //         'string.base': 'Category must be a valid string.',
-    //     }),
-
+    tags: Joi.array()
+        .items(Joi.string().custom(objectIdValidator).messages({
+            'any.invalid': 'Each tag must be a valid ObjectId.',
+            'string.base': 'Each tag must be a valid string.',
+        }))
+        .optional()
+        .messages({
+            'array.base': 'Tags must be an array of valid ObjectIds.',
+        }),
+    category: Joi.string()
+        .custom(objectIdValidator)
+        .required()
+        .messages({
+            'any.invalid': 'Category must be a valid ObjectId.',
+            'string.base': 'Category must be a valid string.',
+            'any.required': 'Category is required.',
+        }),
     short_description: Joi.string()
         .max(1000)
         .allow('')
@@ -65,16 +74,15 @@ const newsValidationSchema = Joi.object({
             'string.base': 'Short description must be a valid string.',
             'string.max': 'Short description should not exceed 1000 characters.',
         }),
-
     long_description: Joi.string()
+        .required()
         .max(1000)
-        .allow('')
-        .optional()
         .messages({
             'string.base': 'Long description must be a valid string.',
             'string.max': 'Long description should not exceed 1000 characters.',
+            'any.required': 'Long description is required.',
         }),
-}).unknown(true);
+}).unknown(true); // Allow additional fields not explicitly defined
 
 const validateNews = async (request, reply) => {
     return handleValidationError(request, reply, newsValidationSchema);

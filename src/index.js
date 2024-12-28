@@ -1,5 +1,5 @@
 const Fastify = require('fastify');
-const fastify = Fastify({ logger: false });
+const fastify = Fastify({ logger: true });
 const cors = require('@fastify/cors')
 const jwt = require('@fastify/jwt');
 // Register CORS plugin
@@ -15,7 +15,10 @@ require('./dbConnection');
 const port = process.env.PORT || 3000;
 
 const newsRoute = require('./routes/news.route');
+const adminNewsRoute = require('./routes/dashboard/news.route');
 const userRoute = require('./routes/user.route');
+const tagRoute = require('./routes/tag.route');
+const categoryRoute = require('./routes/category.route');
 const loginRoute = require('./routes/login.route');
 
 fastify.register(jwt, {
@@ -39,7 +42,13 @@ fastify.get('/', (req, reply)=>{
 // Declare Routes 
 fastify.register(newsRoute, {prefix: "api/v1/news"})
 fastify.register(userRoute, {prefix: "api/v1/user"})
+fastify.register(tagRoute, {prefix: "api/v1/tag"})
+fastify.register(categoryRoute, {prefix: "api/v1/category"})
+fastify.register(adminNewsRoute, {prefix: "api/v1/admin/news"})
+
+// Admin Routes 
 fastify.register(loginRoute, {prefix: "api/v1/login"})
+
 
 // Run Server 
 const start = async () => {

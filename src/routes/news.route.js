@@ -3,9 +3,9 @@ const { validateNews } = require('../schema-validation/news.validation');
 async function routes(fastify, options){
     fastify.get("/",  newsController.getAll);
     fastify.get("/:id", newsController.getSingle);
-    fastify.post("/", {preHandler:[validateNews, fastify.authenticate]}, newsController.create);
-    fastify.put("/:id", {preHandler:[validateNews, fastify.authenticate]}, newsController.update);
-    fastify.delete("/:id", { preHandler: fastify.authenticate }, newsController.destroy);
+    // Add the changeStatus API route
+    fastify.patch("/:id/status", { preHandler: fastify.authenticate }, newsController.changeStatus);
+
 }
 
 module.exports = routes;

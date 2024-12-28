@@ -1,5 +1,5 @@
 const Joi = require('joi');
-const { handleValidationError } = require('../helper/validationErrorMessage');
+const { handleValidationError } = require('../utils/helper/validationErrorMessage');
 
 
 const stringValidationMessages = {

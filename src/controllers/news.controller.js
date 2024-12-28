@@ -3,63 +3,124 @@ const mongoose = require('mongoose');
 
 const getAll = async (request, reply) => {
     try {
-        // Fetch all expenses from the database
-        const news = await News.find().sort({ createdAt: -1 });
+        const { category, tags, name } = request.query;
 
-        // If no expenses found, return an empty array with a message
-        if (news.length === 0) {
+        const query = { status: "active" };
+
+        // Build query filters
+        if (category && mongoose.Types.ObjectId.isValid(category)) {
+            query.category = category;
+        }
+        if (tags) {
+            const tagArray = tags.split(',').map(tag => tag.trim());
+            query.tags = { $in: tagArray.map(tag => mongoose.Types.ObjectId(tag)) };
+        }
+        if (name) {
+            query.name = { $regex: name, $options: 'i' }; // Case-insensitive search
+        }
+
+        // Fetch news with filters and populate related fields
+        const news = await News.find(query)
+            .populate('category', 'name') // Populate category name
+            .populate('tags', 'name') // Populate tag names
+            .sort({ createdAt: -1 });
+
+        if (!news || news.length === 0) {
             return reply.status(404).send({
                 message: 'No news found',
                 data: []
             });
         }
 
-        // If expenses are found, return them wrapped in a data field
         reply.status(200).send({
             message: 'News fetched successfully',
             data: news
         });
 
     } catch (error) {
-        // Log the error for debugging
         console.error(error);
-
-        // Send a standardized error response
         reply.status(500).send({
             message: 'An error occurred while fetching the news.',
             error: error.message
         });
     }
 };
+const adminGetAll = async (request, reply) => {
+    try {
+        const { category, tags, name, status } = request.query;
+
+        const query = {};
+
+        // Build query filters
+        if (category && mongoose.Types.ObjectId.isValid(category)) {
+            query.category = category;
+        }
+        if (tags) {
+            const tagArray = tags.split(',').map(tag => tag.trim());
+            query.tags = { $in: tagArray.map(tag => mongoose.Types.ObjectId(tag)) };
+        }
+        if (name) {
+            query.name = { $regex: name, $options: 'i' }; // Case-insensitive search
+        }
+        if (status) {
+            query.status = status;
+        }
+        // Fetch news with filters and populate related fields
+        const news = await News.find(query)
+            .populate('category', 'name') // Populate category name
+            .populate('tags', 'name') // Populate tag names
+            .sort({ createdAt: -1 });
+
+        if (!news || news.length === 0) {
+            return reply.status(404).send({
+                message: 'No news found',
+                data: []
+            });
+        }
+
+        reply.status(200).send({
+            message: 'News fetched successfully',
+            data: news
+        });
+
+    } catch (error) {
+        console.error(error);
+        reply.status(500).send({
+            message: 'An error occurred while fetching the news.',
+            error: error.message
+        });
+    }
+};
+
 const getSingle = async (request, reply) => {
     try {
-        // Validate if the provided ID is a valid ObjectId
-        if (!mongoose.Types.ObjectId.isValid(request.params.id)) {
+        const { id } = request.params;
+
+        if (!mongoose.Types.ObjectId.isValid(id)) {
             return reply.status(400).send({
                 message: 'Invalid News ID format'
             });
         }
 
-        // Find the expense by ID
-        const expense = await News.findById(request.params.id);
+        const news = await News.findById(id)
+            .populate('category', 'name') // Populate category name
+            .populate('tags', 'name'); // Populate tag names
 
-        // If no expense is found, return 404
-        if (!expense) {
+        if (!news) {
             return reply.status(404).send({
                 message: 'News not found'
             });
         }
 
-        // If found, return the expense data
         reply.status(200).send({
-            data: expense
+            message: 'News fetched successfully',
+            data: news
         });
 
     } catch (error) {
-        // General error handling
         console.error(error);
         reply.status(500).send({
-            message: 'An error occurred while fetching the expense.',
+            message: 'An error occurred while fetching the news.',
             error: error.message
         });
     }
@@ -67,9 +128,6 @@ const getSingle = async (request, reply) => {
 
 const create = async (req, res) => {
     try {
-
-        // Create the expense in the database  
-        console.log('req====>', req)      
         const {
             name,
             author_name,
@@ -79,7 +137,20 @@ const create = async (req, res) => {
             image_url,
             category,
             tags,
+            status
         } = req.body;
+
+        // Validate category and tags as ObjectIds
+        if (!mongoose.Types.ObjectId.isValid(category)) {
+            return res.status(400).send({
+                message: 'Invalid category ID'
+            });
+        }
+        if (!Array.isArray(tags) || !tags.every(tag => mongoose.Types.ObjectId.isValid(tag))) {
+            return res.status(400).send({
+                message: 'Invalid tag IDs'
+            });
+        }
 
         const news = await News.create({
             name,
@@ -90,18 +161,19 @@ const create = async (req, res) => {
             image_url,
             category,
             tags,
+            status
         });
 
-        // Send success response
         res.status(201).send({
-            data: news,
-            message: "News created successfully."
+            message: 'News created successfully',
+            data: news
         });
+
     } catch (error) {
         console.error(error);
         res.status(500).send({
-            message: "Failed to create news.",
-            error: error
+            message: 'Failed to create news',
+            error: error.message
         });
     }
 };
@@ -110,96 +182,125 @@ const update = async (request, reply) => {
     try {
         const { id } = request.params;
         const updateData = request.body;
-        
-        const expense = await News.findById(id);
 
-        if (!expense) {
-            return reply.status(404).send({
-                message: 'News not found.'
-            });
-        }
-       
-        const updatedExpense = await News.findByIdAndUpdate(id, updateData, {
-            new: true,           // Returns the updated document
-            runValidators: true, // Ensures validation is run on update
-        });
-       
-        if (!updatedExpense) {
-            return reply.status(400).send({
-                message: 'Failed to update expense.',
-            });
-        }
-
-        // Return the updated data
-        reply.status(200).send({
-            data: updatedExpense,  // Send back the updated document
-            message: 'Data updated successfully.'
-        });
-
-    } catch (error) {
-        // Handle validation error and send a formatted response
-        if (error.name === 'ValidationError') {
-            // Collect validation errors in an object where the field name is the key
-            const validationErrors = {};
-
-            // Loop through all the validation errors and format them
-            Object.values(error.errors).forEach(err => {
-                const field = err.path;  // The field name
-                const message = err.message;  // The error message
-
-                // If this field already has an error array, push the message, else create a new array
-                if (!validationErrors[field]) {
-                    validationErrors[field] = [];
-                }
-                validationErrors[field].push(message);
-            });
-
-            return reply.status(400).send({
-                message: 'Validation failed',
-                errors: validationErrors
-            });
-        }
-
-        // Handle other types of errors (non-validation errors)
-        console.error(error);
-        return reply.status(500).send({
-            message: 'An error occurred while updating the expense.',
-            error: error.message
-        });
-    }
-};
-const destroy = async (request, reply) => {
-    try {
-        // Check if the provided ID is a valid ObjectId
-        if (!mongoose.Types.ObjectId.isValid(request.params.id)) {
+        if (!mongoose.Types.ObjectId.isValid(id)) {
             return reply.status(400).send({
                 message: 'Invalid News ID format'
             });
         }
 
-        // Attempt to find and delete the expense by ID
-        const expense = await News.findByIdAndDelete(request.params.id);
+        // Validate category and tags if provided
+        if (updateData.category && !mongoose.Types.ObjectId.isValid(updateData.category)) {
+            return reply.status(400).send({
+                message: 'Invalid category ID'
+            });
+        }
+        if (updateData.tags && (!Array.isArray(updateData.tags) || !updateData.tags.every(tag => mongoose.Types.ObjectId.isValid(tag)))) {
+            return reply.status(400).send({
+                message: 'Invalid tag IDs'
+            });
+        }
 
-        // If no expense was found to delete, return a 404 error
-        if (!expense) {
+        const updatedNews = await News.findByIdAndUpdate(id, updateData, {
+            new: true,
+            runValidators: true
+        })
+            .populate('category', 'name') // Populate updated category name
+            .populate('tags', 'name'); // Populate updated tag names
+
+        if (!updatedNews) {
             return reply.status(404).send({
                 message: 'News not found'
             });
         }
 
-        // Successfully deleted, return a success message
         reply.status(200).send({
-            message: 'Record deleted successfully.'
+            message: 'News updated successfully',
+            data: updatedNews
         });
 
     } catch (error) {
-        // Log the error for debugging purposes
         console.error(error);
-
-        // Return a standardized error response
         reply.status(500).send({
-            message: 'An error occurred while deleting the expense.',
+            message: 'An error occurred while updating the news.',
             error: error.message
+        });
+    }
+};
+
+const destroy = async (request, reply) => {
+    try {
+        const { id } = request.params;
+
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return reply.status(400).send({
+                message: 'Invalid News ID format'
+            });
+        }
+
+        const news = await News.findByIdAndDelete(id);
+
+        if (!news) {
+            return reply.status(404).send({
+                message: 'News not found'
+            });
+        }
+
+        reply.status(200).send({
+            message: 'News deleted successfully'
+        });
+
+    } catch (error) {
+        console.error(error);
+        reply.status(500).send({
+            message: 'An error occurred while deleting the news.',
+            error: error.message
+        });
+    }
+};
+
+const changeStatus = async (request, reply) => {
+    try {
+        const { id } = request.params;
+        const { status } = request.body;
+
+        // Validate News ID
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return reply.status(400).send({
+                message: 'Invalid News ID format',
+            });
+        }
+
+        // Validate the new status
+        const validStatuses = ["active", "inactive", "pending", "rejected"];
+        if (!validStatuses.includes(status)) {
+            return reply.status(400).send({
+                message: `Invalid status. Allowed statuses are: ${validStatuses.join(', ')}`,
+            });
+        }
+
+        // Update the status of the news
+        const updatedNews = await News.findByIdAndUpdate(
+            id,
+            { status },
+            { new: true, runValidators: true } // Return updated document and validate
+        );
+
+        if (!updatedNews) {
+            return reply.status(404).send({
+                message: 'News not found',
+            });
+        }
+
+        reply.status(200).send({
+            message: 'News status updated successfully',
+            data: updatedNews,
+        });
+    } catch (error) {
+        console.error(error);
+        reply.status(500).send({
+            message: 'An error occurred while updating the news status.',
+            error: error.message,
         });
     }
 };
@@ -209,5 +310,7 @@ module.exports = {
     getSingle,
     create,
     update,
-    destroy
-}
+    destroy,
+    changeStatus,
+    adminGetAll
+};

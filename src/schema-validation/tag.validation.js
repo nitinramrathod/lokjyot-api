@@ -22,25 +22,14 @@ const createStringValidation = () => {
 const userValidationSchema = Joi.object({
     name: createStringValidation().messages({
         'any.required': 'Name is required.',
-    }),
-    email: Joi.string()
-        .email({ tlds: { allow: false } })
-        .required()
-        .messages({
-            'string.base': 'Email should be a valid string.',
-            'string.email': 'Email must be a valid email address.',
-            'any.required': 'Email is required.',
-        }),
-    password: createStringValidation().messages({
-        'any.required': 'Password is required.',
-    }),
+    })
 
 }).unknown(true);
 
-const validateUser = async (request, reply) => {
+const validateTag = async (request, reply) => {
     return handleValidationError(request, reply, userValidationSchema);
 };
 
 module.exports = {
-    validateUser,
+    validateTag,
 };
