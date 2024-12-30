@@ -49,7 +49,7 @@ const getSingle = async (req, res) => {
             });
         }
 
-        const mappedWithNews = await News.findOne({tags: id});
+        const mappedWithNews = await News.findOne({category: id});
 
         if(mappedWithNews) {
             return res.status(400).send({

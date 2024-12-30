@@ -158,9 +158,9 @@ const destroy = async (req, res) => {
             });
         }
 
-        const mappedWithNews = await News.findOne({tags: id});
+        const mappedWithNews = await News.findOne({ tags: { $in: [id] } });
 
-        if(mappedWithNews) {
+        if (mappedWithNews) {
             return res.status(400).send({
                 message: 'Tag is associated with news articles. Cannot delete.',
             });
