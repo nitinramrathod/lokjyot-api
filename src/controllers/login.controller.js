@@ -13,7 +13,7 @@ const login = async (request, reply) => {
 
         const token = await reply.jwtSign(
             { userId: user._id, email: user.email, role: user?.role },
-            { expiresIn: '8h' }
+            { expiresIn: '48h' }
         );
 
         reply.send({ user: { id: user._id, name: user.name, email: user.email, role: user?.role }, token });

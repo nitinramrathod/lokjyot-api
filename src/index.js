@@ -27,7 +27,6 @@ fastify.register(jwt, {
 fastify.decorate('authenticate', async (request, reply) => {
     try {
         await request.jwtVerify();
-        console.log('Decoded Token:', request.user);
     } catch (err) {
         reply.status(401).send({ message: 'Unauthorized access', error: err.message });
     }

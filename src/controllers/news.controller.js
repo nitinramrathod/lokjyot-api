@@ -51,6 +51,8 @@ const adminGetAll = async (request, reply) => {
 
         const query = {};
 
+        const user = request.user;
+
         // Build query filters
         if (category && mongoose.Types.ObjectId.isValid(category)) {
             query.category = category;
@@ -65,6 +67,11 @@ const adminGetAll = async (request, reply) => {
         if (status) {
             query.status = status;
         }
+
+        if (user.role === 'publisher') {
+            query.publisher = user._id; // Assuming 'createdBy' is the field that stores the user ID who created the news
+        }
+
         // Fetch news with filters and populate related fields
         const news = await News.find(query)
             .populate('category', 'name') // Populate category name
@@ -141,10 +148,17 @@ const create = async (req, res) => {
             status
         } = req.body;
 
+        const publisher = req?.user?.userId;
+
         // Validate category and tags as ObjectIds
         if (!mongoose.Types.ObjectId.isValid(category)) {
             return res.status(400).send({
                 message: 'Invalid category ID'
+            });
+        }
+        if (!mongoose.Types.ObjectId.isValid(publisher)) {
+            return res.status(400).send({
+                message: 'Invalid publisher ID'
             });
         }
         if (!Array.isArray(tags) || !tags.every(tag => mongoose.Types.ObjectId.isValid(tag))) {
@@ -163,7 +177,8 @@ const create = async (req, res) => {
             location,
             category,
             tags,
-            status
+            status,
+            publisher
         });
 
         res.status(201).send({
