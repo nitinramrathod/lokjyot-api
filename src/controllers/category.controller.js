@@ -1,6 +1,7 @@
 const Category = require('../models/category.model');
 const mongoose = require('mongoose');
 const isValidObjectId = require('../utils/helper/validateObjectId');
+const News = require('../models/news.model');
 
 
 
@@ -45,6 +46,14 @@ const getSingle = async (req, res) => {
         if (!category) {
             return res.status(404).send({
                 message: 'Category not found',
+            });
+        }
+
+        const mappedWithNews = await News.findOne({tags: id});
+
+        if(mappedWithNews) {
+            return res.status(400).send({
+                message: 'Category is associated with news. Cannot delete.',
             });
         }
 

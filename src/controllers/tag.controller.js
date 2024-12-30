@@ -1,6 +1,7 @@
 const Tag = require('../models/tag.model');
 const mongoose = require('mongoose');
 const isValidObjectId = require('../utils/helper/validateObjectId');
+const News = require('../models/news.model');
 
 // Get all tags
 const getAll = async (req, res) => {
@@ -154,6 +155,14 @@ const destroy = async (req, res) => {
         if (!tag) {
             return res.status(404).send({
                 message: 'Tag not found.',
+            });
+        }
+
+        const mappedWithNews = await News.findOne({tags: id});
+
+        if(mappedWithNews) {
+            return res.status(400).send({
+                message: 'Tag is associated with news articles. Cannot delete.',
             });
         }
 

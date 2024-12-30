@@ -41,12 +41,14 @@ fastify.get('/', (req, reply)=>{
 
 // Declare Routes 
 fastify.register(newsRoute, {prefix: "api/v1/news"})
+
+// Admin Routes 
 fastify.register(userRoute, {prefix: "api/v1/user"})
 fastify.register(tagRoute, {prefix: "api/v1/tag"})
 fastify.register(categoryRoute, {prefix: "api/v1/category"})
 fastify.register(adminNewsRoute, {prefix: "api/v1/admin/news"})
 
-// Admin Routes 
+// Auth Routes 
 fastify.register(loginRoute, {prefix: "api/v1/login"})
 
 
