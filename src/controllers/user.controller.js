@@ -67,13 +67,23 @@ const create = async (req, res) => {
         const {
             name,
             email,
-            password
+            password,
+            role
         } = req.body;
+
+        const allowedRoles = ["admin", "publisher"];
+
+        if (!allowedRoles.includes(role)) {
+            return res.status(422).send({
+                message: "Invalid role. Allowed roles are: " + allowedRoles.join(", "),
+            });
+        }
 
         const news = await User.create({
             name,
             email,
-            password
+            password,
+            role
         });
 
         // Send success response
@@ -94,7 +104,7 @@ const update = async (request, reply) => {
     try {
         const { id } = request.params;
         const updateData = request.body;
-        
+
         const expense = await User.findById(id);
 
         if (!expense) {
@@ -102,12 +112,12 @@ const update = async (request, reply) => {
                 message: 'User not found.'
             });
         }
-       
+
         const updatedExpense = await User.findByIdAndUpdate(id, updateData, {
             new: true,           // Returns the updated document
             runValidators: true, // Ensures validation is run on update
         });
-       
+
         if (!updatedExpense) {
             return reply.status(400).send({
                 message: 'Failed to update expense.',

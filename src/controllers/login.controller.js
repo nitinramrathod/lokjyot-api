@@ -12,11 +12,11 @@ const login = async (request, reply) => {
         }
 
         const token = await reply.jwtSign(
-            { userId: user._id, email: user.email },
-            { expiresIn: '1h' }
+            { userId: user._id, email: user.email, role: user?.role },
+            { expiresIn: '8h' }
         );
 
-        reply.send({ user: { id: user._id, name: user.name, email: user.email }, token });
+        reply.send({ user: { id: user._id, name: user.name, email: user.email, role: user?.role }, token });
 
     } catch (error) {
         console.error('Error in login:', error);

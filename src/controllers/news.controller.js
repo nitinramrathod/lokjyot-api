@@ -134,6 +134,7 @@ const create = async (req, res) => {
             short_description,
             long_description,
             publish_date,
+            location,
             image_url,
             category,
             tags,
@@ -159,6 +160,7 @@ const create = async (req, res) => {
             long_description,
             publish_date,
             image_url,
+            location,
             category,
             tags,
             status
