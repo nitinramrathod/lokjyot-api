@@ -25,6 +25,13 @@ const NewsSchema = new mongoose.Schema({
         default: "pending",
         enum: ["active", "inactive", "pending", "rejected"]
     },
+    type:{
+        type: String,
+        required: [true, 'Type is required'],
+        trim: true,
+        default: "news",
+        enum: ["news", "article"]
+    },
     category: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Category',

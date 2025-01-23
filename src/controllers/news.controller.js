@@ -3,9 +3,9 @@ const mongoose = require('mongoose');
 
 const getAll = async (request, reply) => {
     try {
-        const { category, tags, name } = request.query;
+        const { category, tags, name, type } = request.query;
 
-        const query = { status: "active" };
+        const query = { status: "active", type};
 
         // Build query filters
         if (category && mongoose.Types.ObjectId.isValid(category)) {
@@ -47,9 +47,9 @@ const getAll = async (request, reply) => {
 };
 const adminGetAll = async (request, reply) => {
     try {
-        const { category, tags, name, status } = request.query;
+        const { category, tags, name, status, type } = request.query;
 
-        const query = {};
+        const query = {type};
 
         const user = request.user;
 
@@ -145,6 +145,7 @@ const create = async (req, res) => {
             image_url,
             category,
             tags,
+            type,
             status
         } = req.body;
 
@@ -178,6 +179,7 @@ const create = async (req, res) => {
             category,
             tags,
             status,
+            type,
             publisher
         });
 
