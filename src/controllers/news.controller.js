@@ -76,7 +76,7 @@ const adminGetAll = async (request, reply) => {
         const news = await News.find(query)
             .populate('category', 'name') // Populate category name
             .populate('tags', 'name') // Populate tag names
-            .sort({ createdAt: -1 });
+            .sort({ createdAt: -1 }).exec();;
 
         if (!news || news.length === 0) {
             return reply.status(404).send({
