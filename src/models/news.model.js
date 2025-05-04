@@ -40,7 +40,7 @@ const NewsSchema = new mongoose.Schema({
     publisher: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
-        required: [true, 'Category is required'],
+        required: [true, 'User is required'],
     },
     tags: [{
         type: mongoose.Schema.Types.ObjectId,
