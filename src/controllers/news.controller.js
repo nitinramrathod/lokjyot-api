@@ -5,9 +5,12 @@ const getAll = async (request, reply) => {
     try {
         const { category, tags, name, type } = request.query;
 
-        const query = { status: "active", type};
+        const query = { status: "active"};
 
         // Build query filters
+        if(type){
+            query.type = type;
+        }
         if (category && mongoose.Types.ObjectId.isValid(category)) {
             query.category = category;
         }
