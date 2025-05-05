@@ -92,8 +92,8 @@ const newsValidationSchema = Joi.object({
         }),
 }).unknown(true); // Allow additional fields not explicitly defined
 
-const validateNews = async (request, reply) => {
-    return handleValidationError(request, reply, newsValidationSchema);
+const validateNews = async (payload, reply) => {
+    return await handleValidationError(payload, reply, newsValidationSchema);
 };
 
 module.exports = {

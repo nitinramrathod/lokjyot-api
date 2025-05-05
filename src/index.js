@@ -21,11 +21,24 @@ const tagRoute = require('./routes/tag.route');
 const categoryRoute = require('./routes/category.route');
 const loginRoute = require('./routes/login.route');
 const fastifyStatic =require('@fastify/static');
+const fastifyMultipart = require("@fastify/multipart");
 const path =require('path');
 
 fastify.register(fastifyStatic, {
     root: path.join(__dirname, '../public'),
     prefix: '/', // Access via /public/images/...
+});
+
+fastify.register(fastifyMultipart, {
+    limits: {
+      // fieldNameSize: 100,
+      // fieldSize: 100,
+      // fields: 30,
+      fileSize: 1000000,
+      files: 1,
+      headerPairs: 2000,
+      parts: 1000,
+    },
   });
 
 fastify.register(jwt, {

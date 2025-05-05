@@ -1,14 +1,16 @@
 const News = require('../models/news.model');
 const mongoose = require('mongoose');
+const bodyParser = require('../utils/helper/bodyParser');
+const { validateNews } = require('../schema-validation/news.validation');
 
 const getAll = async (request, reply) => {
     try {
         const { category, tags, name, type } = request.query;
 
-        const query = { status: "active"};
+        const query = { status: "active" };
 
         // Build query filters
-        if(type){
+        if (type) {
             query.type = type;
         }
         if (category && mongoose.Types.ObjectId.isValid(category)) {
@@ -57,7 +59,7 @@ const adminGetAll = async (request, reply) => {
         const user = request.user;
 
         // Build query filters
-        if(type){
+        if (type) {
             query.type = type;
         }
         if (category && mongoose.Types.ObjectId.isValid(category)) {
@@ -139,8 +141,34 @@ const getSingle = async (request, reply) => {
     }
 };
 
-const create = async (req, res) => {
+const create = async (request, reply) => {
     try {
+
+        if (!request.isMultipart()) {
+            return reply
+                .status(422)
+                .send({ error: "Request must be multipart/form-data" });
+        }
+
+        let fields = await bodyParser(request, '/public/news');
+
+        let extracted_tags = Object.keys(fields)
+            .filter((key) => key.startsWith("tags["))
+            .sort((a, b) => {
+                const indexA = parseInt(a.match(/\[(\d+)\]/)[1], 10);
+                const indexB = parseInt(b.match(/\[(\d+)\]/)[1], 10);
+                return indexA - indexB;
+            })
+            .map((key) => fields[key]);
+
+        //Map keys
+
+        fields.tags = extracted_tags;
+        fields.image = fields.image.path;
+
+        const validationResponse = await validateNews(fields, reply);
+        if (validationResponse) return;
+
         const {
             name,
             author_name,
@@ -148,28 +176,28 @@ const create = async (req, res) => {
             long_description,
             publish_date,
             location,
-            image_url,
+            image,
             category,
             tags,
             type,
             status
-        } = req.body;
+        } = fields;
 
-        const publisher = req?.user?.userId;
+        const publisher = request?.user?.userId;
 
         // Validate category and tags as ObjectIds
         if (!mongoose.Types.ObjectId.isValid(category)) {
-            return res.status(400).send({
+            return reply.status(400).send({
                 message: 'Invalid category ID'
             });
         }
         if (!mongoose.Types.ObjectId.isValid(publisher)) {
-            return res.status(400).send({
+            return reply.status(400).send({
                 message: 'Invalid publisher ID'
             });
         }
         if (!Array.isArray(tags) || !tags.every(tag => mongoose.Types.ObjectId.isValid(tag))) {
-            return res.status(400).send({
+            return reply.status(400).send({
                 message: 'Invalid tag IDs'
             });
         }
@@ -180,7 +208,7 @@ const create = async (req, res) => {
             short_description,
             long_description,
             publish_date,
-            image_url,
+            image,
             location,
             category,
             tags,
@@ -189,14 +217,14 @@ const create = async (req, res) => {
             publisher
         });
 
-        res.status(201).send({
+        reply.status(201).send({
             message: 'News created successfully',
             data: news
         });
 
     } catch (error) {
         console.error(error);
-        res.status(500).send({
+        reply.status(500).send({
             message: 'Failed to create news',
             error: error.message
         });

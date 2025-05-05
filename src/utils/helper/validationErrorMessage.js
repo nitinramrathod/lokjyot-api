@@ -1,6 +1,6 @@
-const handleValidationError = async (request, reply, validationSchema) => {
+const handleValidationError = async (payload, reply, validationSchema) => {
     try {
-        await validationSchema.validateAsync(request.body, { abortEarly: false });
+        await validationSchema.validateAsync(payload, { abortEarly: false });
        
     } catch (error) {
         const validationErrors = {};
