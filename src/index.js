@@ -20,6 +20,13 @@ const userRoute = require('./routes/user.route');
 const tagRoute = require('./routes/tag.route');
 const categoryRoute = require('./routes/category.route');
 const loginRoute = require('./routes/login.route');
+const fastifyStatic =require('@fastify/static');
+const path =require('path');
+
+fastify.register(fastifyStatic, {
+    root: path.join(__dirname, '../public'),
+    prefix: '/', // Access via /public/images/...
+  });
 
 fastify.register(jwt, {
     secret: process.env.JWT_SECRET_KEY || 'hello', 
