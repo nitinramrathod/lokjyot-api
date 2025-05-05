@@ -164,7 +164,9 @@ const create = async (request, reply) => {
         //Map keys
 
         fields.tags = extracted_tags;
-        fields.image = fields.image.path;
+        if(fields?.image?.path){
+            fields.image = fields?.image?.path;
+        }
 
         const validationResponse = await validateNews(fields, reply);
         if (validationResponse) return;
@@ -233,8 +235,37 @@ const create = async (request, reply) => {
 
 const update = async (request, reply) => {
     try {
+
+        if (!request.isMultipart()) {
+            return reply
+                .status(422)
+                .send({ error: "Request must be multipart/form-data" });
+        }
+
+        let fields = await bodyParser(request, '/public/news');
+
+        let extracted_tags = Object.keys(fields)
+            .filter((key) => key.startsWith("tags["))
+            .sort((a, b) => {
+                const indexA = parseInt(a.match(/\[(\d+)\]/)[1], 10);
+                const indexB = parseInt(b.match(/\[(\d+)\]/)[1], 10);
+                return indexA - indexB;
+            })
+            .map((key) => fields[key]);
+
+        //Map keys
+
+        fields.tags = extracted_tags;
+
+        if(fields?.image?.path){
+            fields.image = fields?.image?.path;
+        }
+
+        const validationResponse = await validateNews(fields, reply);
+        if (validationResponse) return;
+
         const { id } = request.params;
-        const updateData = request.body;
+        // const fields = request.body;
 
         if (!mongoose.Types.ObjectId.isValid(id)) {
             return reply.status(400).send({
@@ -243,23 +274,21 @@ const update = async (request, reply) => {
         }
 
         // Validate category and tags if provided
-        if (updateData.category && !mongoose.Types.ObjectId.isValid(updateData.category)) {
+        if (fields.category && !mongoose.Types.ObjectId.isValid(fields.category)) {
             return reply.status(400).send({
                 message: 'Invalid category ID'
             });
         }
-        if (updateData.tags && (!Array.isArray(updateData.tags) || !updateData.tags.every(tag => mongoose.Types.ObjectId.isValid(tag)))) {
+        if (fields.tags && (!Array.isArray(fields.tags) || !fields.tags.every(tag => mongoose.Types.ObjectId.isValid(tag)))) {
             return reply.status(400).send({
                 message: 'Invalid tag IDs'
             });
         }
 
-        const updatedNews = await News.findByIdAndUpdate(id, updateData, {
+        const updatedNews = await News.findByIdAndUpdate(id, fields, {
             new: true,
             runValidators: true
-        })
-            .populate('category', 'name') // Populate updated category name
-            .populate('tags', 'name'); // Populate updated tag names
+        }).populate('category', 'name').populate('tags', 'name'); // Populate updated tag names
 
         if (!updatedNews) {
             return reply.status(404).send({
@@ -283,6 +312,12 @@ const update = async (request, reply) => {
 
 const destroy = async (request, reply) => {
     try {
+        if (!request.isMultipart()) {
+            return reply
+                .status(422)
+                .send({ error: "Request must be multipart/form-data" });
+        }
+
         const { id } = request.params;
 
         if (!mongoose.Types.ObjectId.isValid(id)) {
@@ -314,8 +349,16 @@ const destroy = async (request, reply) => {
 
 const changeStatus = async (request, reply) => {
     try {
+        if (!request.isMultipart()) {
+            return reply
+                .status(422)
+                .send({ error: "Request must be multipart/form-data" });
+        }
+
+        let fields = await bodyParser(request, '/public/news');
+
         const { id } = request.params;
-        const { status } = request.body;
+        const { status } = fields;
 
         // Validate News ID
         if (!mongoose.Types.ObjectId.isValid(id)) {
