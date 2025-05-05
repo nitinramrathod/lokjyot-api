@@ -7,8 +7,12 @@ const login = async (request, reply) => {
 
         const user = await User.findOne({ email });
 
+        console.log('User found:', user); // Log the user object
+        console.log('User email:', email); // Log the user object
+        console.log('User password:', password); // Log the user object
+
         if (!user || !(await user.comparePassword(password))) {
-            return reply.status(401).send({ message: 'Invalid email or password.' });
+            return reply.status(422).send({ message: 'Invalid email or password.' });
         }
 
         const token = await reply.jwtSign(

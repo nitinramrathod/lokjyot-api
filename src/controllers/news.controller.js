@@ -49,11 +49,14 @@ const adminGetAll = async (request, reply) => {
     try {
         const { category, tags, name, status, type } = request.query;
 
-        const query = {type};
+        const query = {};
 
         const user = request.user;
 
         // Build query filters
+        if(type){
+            query.type = type;
+        }
         if (category && mongoose.Types.ObjectId.isValid(category)) {
             query.category = category;
         }
