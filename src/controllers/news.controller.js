@@ -150,7 +150,7 @@ const create = async (request, reply) => {
                 .send({ error: "Request must be multipart/form-data" });
         }
 
-        let fields = await bodyParser(request, '/public/news');
+        let fields = await bodyParser(request, '/public/storage/news');
 
         let extracted_tags = Object.keys(fields)
             .filter((key) => key.startsWith("tags["))
@@ -242,7 +242,7 @@ const update = async (request, reply) => {
                 .send({ error: "Request must be multipart/form-data" });
         }
 
-        let fields = await bodyParser(request, '/public/news');
+        let fields = await bodyParser(request, '/public/storage/news');
 
         let extracted_tags = Object.keys(fields)
             .filter((key) => key.startsWith("tags["))

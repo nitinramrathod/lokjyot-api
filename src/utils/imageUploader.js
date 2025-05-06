@@ -17,8 +17,6 @@ const saveFile = async (part, filepathPrefix = '/public/images/news') => {
   const uniqueFilename = `${Date.now()}-${part.filename}`;
   const filePath = path.join(`.${filepathPrefix}`, uniqueFilename);
 
-
-
   // Save file to the public folder
   await pipeline(part.file, fs.createWriteStream(filePath));
 
