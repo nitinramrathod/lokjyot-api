@@ -152,7 +152,7 @@ const create = async (request, reply) => {
 
         let fields = await bodyParser(request, '/public/storage/news');
 
-        console.log('field===>', fields , '<===')
+      
 
         let extracted_tags = Object.keys(fields)
             .filter((key) => key.startsWith("tags["))
@@ -166,8 +166,9 @@ const create = async (request, reply) => {
         //Map keys
 
         fields.tags = extracted_tags;
-        if(fields?.image?.path){
-            fields.image = fields?.image?.path;
+
+        if(fields?.image){
+            fields.image = fields?.image;
         }
 
         const validationResponse = await validateNews(fields, reply);
@@ -259,15 +260,14 @@ const update = async (request, reply) => {
 
         fields.tags = extracted_tags;
 
-        if(fields?.image?.path){
-            fields.image = fields?.image?.path;
+        if(fields?.image){
+            fields.image = fields?.image;
         }
 
         const validationResponse = await validateNews(fields, reply);
         if (validationResponse) return;
 
         const { id } = request.params;
-        // const fields = request.body;
 
         if (!mongoose.Types.ObjectId.isValid(id)) {
             return reply.status(400).send({
