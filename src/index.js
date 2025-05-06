@@ -10,7 +10,7 @@ fastify.register(cors, {
 
 require('dotenv').config();
 
-require('./dbConnection');
+require('./utils/dbConnection');
 
 const port = process.env.PORT || 3000;
 

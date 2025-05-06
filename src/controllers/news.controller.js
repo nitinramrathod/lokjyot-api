@@ -152,6 +152,8 @@ const create = async (request, reply) => {
 
         let fields = await bodyParser(request, '/public/storage/news');
 
+        console.log('field===>', fields , '<===')
+
         let extracted_tags = Object.keys(fields)
             .filter((key) => key.startsWith("tags["))
             .sort((a, b) => {
