@@ -13,6 +13,16 @@ const UserSchema = new mongoose.Schema({
         required: [true, 'Email is required'],
         trim: true,
     },  
+    mobile: {
+        type: String,
+        required: [true, 'Mobile is required'],
+        trim: true,
+    },  
+    image: {
+        type: String,
+        required: [true, 'Image is required'],
+        trim: true,
+    },  
     role: {
         type: String,
         enum:["admin", "publisher"],

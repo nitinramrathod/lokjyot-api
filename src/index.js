@@ -17,6 +17,7 @@ const port = process.env.PORT || 3000;
 const newsRoute = require('./routes/news.route');
 const adminNewsRoute = require('./routes/dashboard/news.route');
 const userRoute = require('./routes/user.route');
+const submissionRoute = require('./routes/submission.route');
 const tagRoute = require('./routes/tag.route');
 const categoryRoute = require('./routes/category.route');
 const loginRoute = require('./routes/login.route');
@@ -31,9 +32,6 @@ fastify.register(fastifyStatic, {
 
 fastify.register(fastifyMultipart, {
     limits: {
-      // fieldNameSize: 100,
-      // fieldSize: 100,
-      // fields: 30,
       fileSize: 1000000,
       files: 1,
       headerPairs: 2000,
@@ -63,6 +61,7 @@ fastify.register(newsRoute, {prefix: "api/v1/news"})
 
 // Admin Routes 
 fastify.register(userRoute, {prefix: "api/v1/user"})
+fastify.register(submissionRoute, {prefix: "api/v1/submission"})
 fastify.register(tagRoute, {prefix: "api/v1/tag"})
 fastify.register(categoryRoute, {prefix: "api/v1/category"})
 fastify.register(adminNewsRoute, {prefix: "api/v1/admin/news"})

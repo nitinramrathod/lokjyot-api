@@ -84,10 +84,10 @@ const newsValidationSchema = Joi.object({
         }),
     long_description: Joi.string()
         .required()
-        .max(4000)
+        .max(6000)
         .messages({
             'string.base': 'Long description must be a valid string.',
-            'string.max': 'Long description should not exceed 4000 characters.',
+            'string.max': 'Long description should not exceed 6000 characters.',
             'any.required': 'Long description is required.',
         }),
 }).unknown(true); // Allow additional fields not explicitly defined

@@ -39,8 +39,8 @@ const userValidationSchema = Joi.object({
         }),
 }).unknown(false); // Reject unknown fields by default
 
-const validateUser = async (request, reply) => {
-    return handleValidationError(request, reply, userValidationSchema);
+const validateUser = async (payload, reply) => {
+    return await handleValidationError(payload, reply, userValidationSchema);
 };
 
 module.exports = {

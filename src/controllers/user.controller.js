@@ -1,5 +1,6 @@
 const User = require('../models/user.model');
 const mongoose = require('mongoose');
+const { validateUser } = require('../schema-validation/user.validation');
 
 const getAll = async (request, reply) => {
     try {
@@ -64,12 +65,24 @@ const getSingle = async (request, reply) => {
 const create = async (req, res) => {
     try {
 
+        if (!request.isMultipart()) {
+            return reply.status(422).send({ error: "Request must be multipart/form-data" });
+        }
+
+        let fields = await bodyParser(request);
+
+        const validationResponse = await validateUser(fields, reply);
+        if (validationResponse) return;
+
+
         const {
             name,
             email,
             password,
-            role
-        } = req.body;
+            role,
+            image,
+            mobile
+        } = fields;
 
         const allowedRoles = ["admin", "publisher"];
 
@@ -83,7 +96,9 @@ const create = async (req, res) => {
             name,
             email,
             password,
-            role
+            role,
+            image,
+            mobile
         });
 
         // Send success response
@@ -102,23 +117,34 @@ const create = async (req, res) => {
 
 const update = async (request, reply) => {
     try {
+
+        
+        if (!request.isMultipart()) {
+            return reply.status(422).send({ error: "Request must be multipart/form-data" });
+        }
+
+        let fields = await bodyParser(request);
+
+        const validationResponse = await validateUser(fields, reply);
+        if (validationResponse) return;
+
         const { id } = request.params;
-        const updateData = request.body;
+        const updateData = fields;
 
-        const expense = await User.findById(id);
+        const user = await User.findById(id);
 
-        if (!expense) {
+        if (!user) {
             return reply.status(404).send({
                 message: 'User not found.'
             });
         }
 
-        const updatedExpense = await User.findByIdAndUpdate(id, updateData, {
+        const updatedUser = await User.findByIdAndUpdate(id, updateData, {
             new: true,           // Returns the updated document
             runValidators: true, // Ensures validation is run on update
         });
 
-        if (!updatedExpense) {
+        if (!updatedUser) {
             return reply.status(400).send({
                 message: 'Failed to update expense.',
             });
@@ -126,7 +152,7 @@ const update = async (request, reply) => {
 
         // Return the updated data
         reply.status(200).send({
-            data: updatedExpense,  // Send back the updated document
+            data: updatedUser,  // Send back the updated document
             message: 'Data updated successfully.'
         });
 
