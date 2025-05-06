@@ -1,9 +1,22 @@
 const User = require('../models/user.model');
+const { validateLogin } = require('../schema-validation/login.validation');
+const bodyParser = require('../utils/helper/bodyParser');
 
 
 const login = async (request, reply) => {
     try {
-        const { email, password } = request.body;
+        if (!request.isMultipart()) {
+            return reply
+                .status(422)
+                .send({ error: "Request must be multipart/form-data" });
+        }
+
+        let fields = await bodyParser(request);
+
+        const validationResponse = await validateLogin(fields, reply);
+        if (validationResponse) return;
+
+        const { email, password } = fields;
 
         const user = await User.findOne({ email });
 

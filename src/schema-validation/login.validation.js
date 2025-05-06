@@ -34,8 +34,8 @@ const loginValidationSchema = Joi.object({
 
 }).unknown(true);
 
-const validateLogin = async (request, reply) => {
-    return handleValidationError(request, reply, loginValidationSchema);
+const validateLogin = async (payload, reply) => {
+    return await handleValidationError(payload, reply, loginValidationSchema);
 };
 
 module.exports = {
