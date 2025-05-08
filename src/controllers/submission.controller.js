@@ -197,12 +197,6 @@ const update = async (request, reply) => {
 
 const destroy = async (request, reply) => {
     try {
-        if (!request.isMultipart()) {
-            return reply
-                .status(422)
-                .send({ error: "Request must be multipart/form-data" });
-        }
-
         const { id } = request.params;
 
         if (!mongoose.Types.ObjectId.isValid(id)) {

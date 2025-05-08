@@ -190,15 +190,17 @@ const update = async (request, reply) => {
 };
 const destroy = async (request, reply) => {
     try {
+        const { id } = request.params;
+
         // Check if the provided ID is a valid ObjectId
-        if (!mongoose.Types.ObjectId.isValid(request.params.id)) {
+        if (!mongoose.Types.ObjectId.isValid(id)) {
             return reply.status(400).send({
                 message: 'Invalid User ID format'
             });
         }
 
         // Attempt to find and delete the expense by ID
-        const expense = await User.findByIdAndDelete(request.params.id);
+        const expense = await User.findByIdAndDelete(id);
 
         // If no expense was found to delete, return a 404 error
         if (!expense) {
