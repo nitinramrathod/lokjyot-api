@@ -1,6 +1,7 @@
 const User = require('../models/user.model');
 const mongoose = require('mongoose');
 const { validateUser } = require('../schema-validation/user.validation');
+const bodyParser = require('../utils/helper/bodyParser');
 
 const getAll = async (request, reply) => {
     try {
