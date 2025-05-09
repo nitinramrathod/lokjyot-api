@@ -62,7 +62,7 @@ const getSingle = async (request, reply) => {
     }
 };
 
-const create = async (req, res) => {
+const create = async (request, reply) => {
     try {
 
         if (!request.isMultipart()) {
@@ -73,7 +73,6 @@ const create = async (req, res) => {
 
         const validationResponse = await validateUser(fields, reply);
         if (validationResponse) return;
-
 
         const {
             name,
@@ -87,7 +86,7 @@ const create = async (req, res) => {
         const allowedRoles = ["admin", "publisher"];
 
         if (!allowedRoles.includes(role)) {
-            return res.status(422).send({
+            return reply.status(422).send({
                 message: "Invalid role. Allowed roles are: " + allowedRoles.join(", "),
             });
         }
@@ -102,13 +101,13 @@ const create = async (req, res) => {
         });
 
         // Send success response
-        res.status(201).send({
+        reply.status(201).send({
             data: news,
             message: "User created successfully."
         });
     } catch (error) {
         console.error(error);
-        res.status(500).send({
+        reply.status(500).send({
             message: "Failed to create user.",
             error: error
         });
