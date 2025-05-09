@@ -33,7 +33,7 @@ const login = async (request, reply) => {
             { expiresIn: '48h' }
         );
 
-        reply.send({ user: { id: user._id, name: user.name, email: user.email, role: user?.role }, token });
+        reply.send({ user: { id: user._id, name: user?.name, mobile: user?.mobile, image: user?.image, email: user.email, role: user?.role }, token });
 
     } catch (error) {
         console.error('Error in login:', error);
