@@ -37,7 +37,7 @@ const userValidationSchema = Joi.object({
             'any.only': 'Passwords must match.',
             'any.required': 'Confirm password is required.',
         }),
-}).unknown(false); // Reject unknown fields by default
+}).unknown(true); // Reject unknown fields by default
 
 const validateUser = async (payload, reply) => {
     return await handleValidationError(payload, reply, userValidationSchema);
