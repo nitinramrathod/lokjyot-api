@@ -13,6 +13,11 @@ const UserSchema = new mongoose.Schema({
         required: [true, 'Email is required'],
         trim: true,
     },  
+    bio: {
+        type: String,
+        required: [true, 'Email is required'],
+        trim: true,
+    },  
     mobile: {
         type: String,
         required: [true, 'Mobile is required'],

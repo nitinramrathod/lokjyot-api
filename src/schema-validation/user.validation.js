@@ -18,7 +18,10 @@ const createStringValidation = (customMessages = {}) => {
         .messages({ ...stringValidationMessages, ...customMessages });
 };
 
-const userValidationSchema = Joi.object({
+// const userValidationSchema = // Reject unknown fields by default
+
+const getUserValidationSchema = (isUpdate)=>{
+return Joi.object({
     name: createStringValidation({ 'any.required': 'Name is required.' }),
     role: createStringValidation({ 'any.required': 'Role is required.' }),
     email: Joi.string()
@@ -29,18 +32,18 @@ const userValidationSchema = Joi.object({
             'string.email': 'Email must be a valid email address.',
             'any.required': 'Email is required.',
         }),
-    password: createStringValidation({ 'any.required': 'Password is required.' }),
-    confirm_password: Joi.string()
-        .required()
-        .valid(Joi.ref('password')) // Ensures passwords match
+    password: isUpdate ? Joi.string().min(8).max(100).optional(): createStringValidation({ 'any.required': 'Password is required.' }),
+    confirm_password: isUpdate ? Joi.string().valid(Joi.ref('password')).optional(): Joi.string().required().valid(Joi.ref('password')) // Ensures passwords match
         .messages({
             'any.only': 'Passwords must match.',
             'any.required': 'Confirm password is required.',
         }),
-}).unknown(true); // Reject unknown fields by default
+}).unknown(true); 
+}
 
-const validateUser = async (payload, reply) => {
-    return await handleValidationError(payload, reply, userValidationSchema);
+const validateUser = async (payload, reply, isUpdate = false) => {
+    const schema = getUserValidationSchema(isUpdate);
+    return await handleValidationError(payload, reply, schema);
 };
 
 module.exports = {

@@ -81,6 +81,7 @@ const create = async (request, reply) => {
             password,
             role,
             image,
+            bio,
             mobile
         } = fields;
 
@@ -98,7 +99,8 @@ const create = async (request, reply) => {
             password,
             role,
             image,
-            mobile
+            mobile,
+            bio
         });
 
         // Send success response
