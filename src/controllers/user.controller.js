@@ -127,7 +127,7 @@ const update = async (request, reply) => {
 
         let fields = await bodyParser(request);
 
-        const validationResponse = await validateUser(fields, reply);
+        const validationResponse = await validateUser(fields, reply, true);
         if (validationResponse) return;
 
         const { id } = request.params;
