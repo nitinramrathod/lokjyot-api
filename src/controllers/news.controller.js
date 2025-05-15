@@ -3,53 +3,101 @@ const mongoose = require('mongoose');
 const bodyParser = require('../utils/helper/bodyParser');
 const { validateNews } = require('../schema-validation/news.validation');
 
+
 const getAll = async (request, reply) => {
-    try {
-        const { category, tags, name, type } = request.query;
+  try {
+    const {
+      category,
+      tags,
+      name,
+      type,
+      location,
+      publisher,
+      author_name,
+      start_date,
+      end_date
+    } = request.query;
 
-        const query = { status: "active" };
+    const query = { status: "active" };
 
-        // Build query filters
-        if (type) {
-            query.type = type;
-        }
-        if (category && mongoose.Types.ObjectId.isValid(category)) {
-            query.category = category;
-        }
-        if (tags) {
-            const tagArray = tags.split(',').map(tag => tag.trim());
-            query.tags = { $in: tagArray.map(tag => mongoose.Types.ObjectId(tag)) };
-        }
-        if (name) {
-            query.name = { $regex: name, $options: 'i' }; // Case-insensitive search
-        }
-
-        // Fetch news with filters and populate related fields
-        const news = await News.find(query)
-            .populate('category', 'name') // Populate category name
-            .populate('tags', 'name') // Populate tag names
-            .sort({ createdAt: -1 });
-
-        if (!news || news.length === 0) {
-            return reply.status(404).send({
-                message: 'No news found',
-                data: []
-            });
-        }
-
-        reply.status(200).send({
-            message: 'News fetched successfully',
-            data: news
-        });
-
-    } catch (error) {
-        console.error(error);
-        reply.status(500).send({
-            message: 'An error occurred while fetching the news.',
-            error: error.message
-        });
+    // Type filter
+    if (type) {
+      query.type = type;
     }
-};
+
+    // Category filter
+    if (category && mongoose.Types.ObjectId.isValid(category)) {
+      query.category = category;
+    }
+
+    // Tags filter
+    if (tags) {
+      const tagArray = tags.split(',').map(tag => tag.trim());
+      query.tags = {
+        $in: tagArray
+          .filter(tag => mongoose.Types.ObjectId.isValid(tag))
+          .map(tag => mongoose.Types.ObjectId(tag))
+      };
+    }
+
+    // Name filter (partial match, case-insensitive)
+    if (name) {
+      query.name = { $regex: name, $options: 'i' };
+    }
+
+    // Location filter (partial match)
+    if (location) {
+      query.location = { $regex: location, $options: 'i' };
+    }
+
+    // Publisher filter
+    if (publisher && mongoose.Types.ObjectId.isValid(publisher)) {
+      query.publisher = publisher;
+    }
+
+    // Author name filter
+    if (author_name) {
+      query.author_name = { $regex: author_name, $options: 'i' };
+    }
+
+    // Publish date range filter
+    if (start_date || end_date) {
+      query.publish_date = {};
+      if (start_date) {
+        query.publish_date.$gte = new Date(start_date);
+      }
+      if (end_date) {
+        query.publish_date.$lte = new Date(end_date);
+      }
+    }
+
+    const news = await News.find(query)
+      .populate('category', 'name') // Populate category name
+      .populate('tags', 'name')     // Populate tag names
+      .populate('publisher', 'name') // Optional: Populate publisher (User)
+      .sort({ createdAt: -1 });
+
+    if (!news.length) {
+      return reply.status(404).send({
+        message: 'No news found',
+        data: []
+      });
+    }
+
+    reply.status(200).send({
+      message: 'News fetched successfully',
+      data: news
+    });
+
+  } catch (error) {
+    console.error(error);
+    reply.status(500).send({
+      message: 'An error occurred while fetching the news.',
+      error: error.message
+    });
+  }
+}; 
+
 const adminGetAll = async (request, reply) => {
     try {
         const { category, tags, name, status, type } = request.query;
