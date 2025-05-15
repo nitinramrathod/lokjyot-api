@@ -41,8 +41,11 @@ const getAll = async (request, reply) => {
     }
 
     // Name filter (partial match, case-insensitive)
-    if (name) {
-      query.name = { $regex: name, $options: 'i' };
+   if (name) {
+    query.$or = [
+        { name: { $regex: name, $options: 'i' } },
+        { short_description: { $regex: name, $options: 'i' } }
+    ];
     }
 
     // Location filter (partial match)
