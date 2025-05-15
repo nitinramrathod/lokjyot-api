@@ -170,7 +170,8 @@ const getSingle = async (request, reply) => {
 
         const news = await News.findById(id)
             .populate('category', 'name') // Populate category name
-            .populate('tags', 'name'); // Populate tag names
+            .populate('tags', 'name')
+            .populate('publisher', 'name');// Populate tag names
 
         if (!news) {
             return reply.status(404).send({
@@ -201,9 +202,7 @@ const create = async (request, reply) => {
                 .send({ error: "Request must be multipart/form-data" });
         }
 
-        let fields = await bodyParser(request, '/public/storage/news');
-
-      
+        let fields = await bodyParser(request, '/public/storage/news');      
 
         let extracted_tags = Object.keys(fields)
             .filter((key) => key.startsWith("tags["))
