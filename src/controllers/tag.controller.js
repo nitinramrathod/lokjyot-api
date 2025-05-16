@@ -2,6 +2,8 @@ const Tag = require('../models/tag.model');
 const mongoose = require('mongoose');
 const isValidObjectId = require('../utils/helper/validateObjectId');
 const News = require('../models/news.model');
+const { validateTag } = require('../schema-validation/tag.validation');
+const bodyParser = require('../utils/helper/bodyParser');
 
 // Get all tags
 const getAll = async (req, res) => {
@@ -61,13 +63,23 @@ const getSingle = async (req, res) => {
 };
 
 // Create a new tag
-const create = async (req, res) => {
+const create = async (request, reply) => {
     try {
-        const { name } = req.body;
+        if (!request.isMultipart()) {
+            return reply
+                .status(422)
+                .send({ error: "Request must be multipart/form-data" });
+        }
 
+        let fields = await bodyParser(request, '/public/storage/news');
+        
+        const validationResponse = await validateTag(fields, reply);
+        if (validationResponse) return;
+        
+        const { name } = fields;
         const tag = await Tag.create({ name });
 
-        res.status(201).send({
+        reply.status(201).send({
             message: 'Tag created successfully.',
             data: tag,
         });
@@ -79,13 +91,13 @@ const create = async (req, res) => {
                 Object.values(error.errors).map(err => [err.path, err.message])
             );
 
-            return res.status(400).send({
+            return reply.status(400).send({
                 message: 'Validation failed',
                 errors: validationErrors,
             });
         }
 
-        res.status(500).send({
+        reply.status(500).send({
             message: 'An error occurred while creating the tag.',
             error: error.message,
         });

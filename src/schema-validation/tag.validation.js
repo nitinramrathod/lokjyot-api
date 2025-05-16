@@ -27,7 +27,7 @@ const userValidationSchema = Joi.object({
 }).unknown(true);
 
 const validateTag = async (request, reply) => {
-    return handleValidationError(request, reply, userValidationSchema);
+    return await handleValidationError(request, reply, userValidationSchema);
 };
 
 module.exports = {

@@ -2,6 +2,8 @@ const Category = require('../models/category.model');
 const mongoose = require('mongoose');
 const isValidObjectId = require('../utils/helper/validateObjectId');
 const News = require('../models/news.model');
+const { validateTag } = require('../schema-validation/tag.validation');
+const bodyParser = require('../utils/helper/bodyParser');
 
 
 
@@ -49,9 +51,9 @@ const getSingle = async (req, res) => {
             });
         }
 
-        const mappedWithNews = await News.findOne({category: id});
+        const mappedWithNews = await News.findOne({ category: id });
 
-        if(mappedWithNews) {
+        if (mappedWithNews) {
             return res.status(400).send({
                 message: 'Category is associated with news. Cannot delete.',
             });
@@ -73,7 +75,19 @@ const getSingle = async (req, res) => {
 // Create a new category
 const create = async (req, res) => {
     try {
-        const { name } = req.body;
+
+        if (!request.isMultipart()) {
+            return reply
+                .status(422)
+                .send({ error: "Request must be multipart/form-data" });
+        }
+
+        let fields = await bodyParser(request, '/public/storage/news');
+
+        const validationResponse = await validateTag(fields, reply);
+        if (validationResponse) return;
+
+        const { name } = fields;
 
         const category = await Category.create({ name });
 

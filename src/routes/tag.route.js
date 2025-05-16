@@ -3,8 +3,8 @@ const { validateTag } = require('../schema-validation/tag.validation');
 async function routes(fastify, options){
     fastify.get("/",  tagController.getAll);
     fastify.get("/:id", tagController.getSingle);
-    fastify.post("/", {preHandler:[validateTag]}, tagController.create);
-    fastify.put("/:id", {preHandler:[validateTag]}, tagController.update);
+    fastify.post("/", tagController.create);
+    fastify.put("/:id", tagController.update);
     fastify.delete("/:id", tagController.destroy);
 }
 
