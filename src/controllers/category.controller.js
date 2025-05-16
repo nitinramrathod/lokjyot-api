@@ -73,7 +73,7 @@ const getSingle = async (req, res) => {
 };
 
 // Create a new category
-const create = async (req, res) => {
+const create = async (request, reply) => {
     try {
 
         if (!request.isMultipart()) {
@@ -91,7 +91,7 @@ const create = async (req, res) => {
 
         const category = await Category.create({ name });
 
-        res.status(201).send({
+        reply.status(201).send({
             message: 'Category created successfully.',
             data: category,
         });
@@ -103,19 +103,19 @@ const create = async (req, res) => {
                 Object.values(error.errors).map(err => [err.path, err.message])
             );
 
-            return res.status(400).send({
+            return reply.status(400).send({
                 message: 'Validation failed',
                 errors: validationErrors,
             });
         }
 
         if (error.code === 11000) {
-            return res.status(400).send({
+            return reply.status(400).send({
                 message: 'Category name must be unique.',
             });
         }
 
-        res.status(500).send({
+        reply.status(500).send({
             message: 'An error occurred while creating the category.',
             error: error.message,
         });
