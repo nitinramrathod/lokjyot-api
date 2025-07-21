@@ -20,6 +20,7 @@ const userRoute = require('./routes/user.route');
 const submissionRoute = require('./routes/submission.route');
 const tagRoute = require('./routes/tag.route');
 const categoryRoute = require('./routes/category.route');
+const gitlabRoute = require('./routes/gitlab.route');
 const dashboardRoute = require('./routes/dashboard.route');
 const loginRoute = require('./routes/login.route');
 const fastifyStatic =require('@fastify/static');
@@ -65,8 +66,11 @@ fastify.register(userRoute, {prefix: "api/v1/user"})
 fastify.register(submissionRoute, {prefix: "api/v1/submission"})
 fastify.register(tagRoute, {prefix: "api/v1/tag"})
 fastify.register(categoryRoute, {prefix: "api/v1/category"})
+fastify.register(gitlabRoute, {prefix: "api/v1/gitlab"})
+
+// Dashboard Routes 
+fastify.register(dashboardRoute, {prefix: "api/v1/dashboard"})  
 fastify.register(adminNewsRoute, {prefix: "api/v1/admin/news"})
-fastify.register(dashboardRoute, {prefix: "api/v1/dashboard"})
 
 // Auth Routes 
 fastify.register(loginRoute, {prefix: "api/v1/login"})
